@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sessions/{sessionId} {
+      allow read, delete: if true;
+      allow create: if
+        request.resource.data.keys().hasAll(['userId','currentRole','dreamCareer','currentSkills','timeAvailable','careerResult','matchScore','timestamp','sessionId']) &&
+        request.resource.data.userId is string && request.resource.data.userId.size() <= 60 &&
+        request.resource.data.currentRole is string && request.resource.data.currentRole.size() <= 100 &&
+        request.resource.data.dreamCareer is string && request.resource.data.dreamCareer.size() <= 100 &&
+        request.resource.data.currentSkills is string && request.resource.data.currentSkills.size() <= 500 &&
+        request.resource.data.timeAvailable is number &&
+        request.resource.data.timeAvailable >= 1 &&
+        request.resource.data.timeAvailable <= 120 &&
+        request.resource.data.careerResult is string && request.resource.data.careerResult.size() <= 200 &&
+        request.resource.data.matchScore is number &&
+        request.resource.data.matchScore >= 0 &&
+        request.resource.data.matchScore <= 100;
+      allow update: if false; // Memory logs are append-only
+    }
+  }
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pathwise AI — Career Intelligence Assistant</title>
+    <!-- Preconnect for fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!-- Accessibility bypass -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Session Sidebar UI -->
+    <aside id="session-sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h3>Memory <span class="badge">Beta</span></h3>
+        <button id="close-sidebar" class="ix sidebar-close-btn">✕</button>
+      </div>
+      <div id="session-list" class="session-list"></div>
+      <button id="clear-history" class="ix danger-text">Clear History</button>
+    </aside>
+    <button id="open-sidebar" class="ix sidebar-toggle">☰ History</button>
+    
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+    
+    <!-- Particles Engine -->
+    <canvas id="particles-canvas"></canvas>
+
+    <nav>
+      <div class="nav-content">
+        <div class="logo">Pathwise AI</div>
+        <div class="nav-links">
+          <a href="#hero" class="ix">Home</a>
+          <a href="#features" class="ix">Features</a>
+        </div>
+        <a href="#form-section" class="cta-pill ix">Start Path</a>
+      </div>
+    </nav>
+
+    <main id="main-content" role="main">
+      <section id="hero" class="hero-3d">
+        <div class="hero-grid-bg"></div>
+        <div class="hero-content-3d">
+          <h1 class="title-3d">Pathwise AI</h1>
+          <p class="subtitle-3d">Bold Ideas That Start With Vision.</p>
+          <p class="desc-3d">We construct futuristic career architectures that inspire action and drive deep tech results.</p>
+          <a href="#form-section" class="btn primary-3d ix">Start Path <span class="arrow">↗</span></a>
+        </div>
+        <div class="hero-image-wrap">
+          <img src="/hero-3d-hands.png" alt="3D Robotic and Human Hands reaching out" class="hero-3d-hands-img"/>
+        </div>
+        
+        <div class="trusted-by">
+          <p>Trusted by teams of every scale</p>
+          <div class="trusted-logos">
+             <span>▲ Vercel</span>
+             <span>❖ Nexus</span>
+             <span>● OpenAI</span>
+             <span>✦ Gemini</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Smart Analysis</h3>
+            <p>AI powered mapping.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Dynamic Paths</h3>
+            <p>Personalized routing.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Skill Gaps</h3>
+            <p>Identify weaknesses.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Time Adjusted</h3>
+            <p>Fits your schedule.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="form-section">
+        <div class="form-grid">
+          <div class="form-card text-input-card">
+            <label for="current-role">Current Role</label>
+            <input type="text" id="current-role" class="ix main-input" placeholder="e.g. Junior Designer" />
+          </div>
+          
+          <div class="form-card text-input-card">
+            <label for="dream-career">Dream Career</label>
+            <input type="text" id="dream-career" class="ix main-input" placeholder="e.g. Design Director" />
+          </div>
+
+          <div class="form-card text-input-card">
+            <label for="current-skills">Current Skills (comma separated)</label>
+            <textarea id="current-skills" class="ix main-input" placeholder="e.g. Figma, HTML, CSS" rows="2"></textarea>
+          </div>
+
+          <div class="form-card">
+            <label for="time-slider">Time Available: <span id="time-display">6</span> months</label>
+            <input type="range" id="time-slider" min="1" max="60" step="1" value="6" class="ix time-slider">
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <div id="error-message" class="error-msg"></div>
+          <div class="action-buttons-wrap">
+            <button id="generate-btn" class="ix cta-button">✦ Generate Path</button>
+            <button id="demo-btn" class="ix cta-button demo-action">▶ Try Demo</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="result-section" aria-live="polite" class="hidden">
+        <div class="result-card" id="result-card-inner">
+          <h2 id="result-title"></h2>
+          <div class="match-score">Match: <span id="result-match"></span>%</div>
+          <p id="result-desc"></p>
+          
+          <div class="skills-container">
+            <h3>Required Skills</h3>
+            <div id="result-skills" class="skills-tags"></div>
+          </div>
+
+          <div class="radar-container">
+            <h3>Skill Gap Radar</h3>
+            <canvas id="radar-chart"></canvas>
+          </div>
+
+          <div class="gaps-container">
+            <h3>Skill Priorities</h3>
+            <div id="result-gaps" class="gaps-list"></div>
+          </div>
+
+          <div class="roadmap-container">
+            <h3>Actionable Roadmap</h3>
+            <div id="result-roadmap" class="roadmap-list"></div>
+          </div>
+          
+          <div class="export-actions" data-html2canvas-ignore="true">
+            <button id="download-pdf" class="ix cta-button secondary">Download PDF</button>
+            <button id="share-card" class="ix cta-button secondary">Share Card</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <p>Pathwise AI © 2026. Powered by Google Gemini.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
