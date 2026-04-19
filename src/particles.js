@@ -1,4 +1,12 @@
+/**
+ * @class ParticleSystem
+ * @description Manages and renders an interactive ambient particle canvas.
+ * Pauses rendering automatically when the browser tab is hidden to save CPU.
+ */
 export class ParticleSystem {
+  /**
+   * @param {string} canvasId - ID of the target canvas element.
+   */
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
     if (!this.canvas) return;
@@ -7,6 +15,8 @@ export class ParticleSystem {
     this.colors = ['#00f5ff','#8b5cf6','#f472b6','#a78bfa','#34d399','#fbbf24','#60a5fa'];
     this.mouse = { x: -1000, y: -1000 };
     this.repelRadius = 90;
+    /** @type {boolean} Tracks whether the animation loop is active */
+    this.running = true;
     
     this.resize();
     window.addEventListener('resize', () => this.resize());
@@ -15,6 +25,16 @@ export class ParticleSystem {
       this.mouse.y = e.clientY;
     });
     window.addEventListener('click', (e) => this.burst(e.clientX, e.clientY));
+
+    // Efficiency: Pause animation when tab is hidden, resume when visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.running = false;
+      } else {
+        this.running = true;
+        requestAnimationFrame(this.animate);
+      }
+    });
 
     // Initialize ambient particles
     for (let i = 0; i < 150; i++) {
@@ -63,40 +83,44 @@ export class ParticleSystem {
     }
   }
 
+  /**
+   * Main animation loop. Skips rendering if the tab is not visible.
+   */
   animate() {
+    // Efficiency: Skip frame if tab is not visible
+    if (!this.running) return;
+
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     for (let i = this.particles.length - 1; i >= 0; i--) {
-      let p = this.particles[i];
+      const p = this.particles[i];
 
-      // Mouse repel
-      let dx = p.x - this.mouse.x;
-      let dy = p.y - this.mouse.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
+      // Mouse repel physics
+      const dx = p.x - this.mouse.x;
+      const dy = p.y - this.mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
       
-      if (!p.burst && dist < this.repelRadius) {
-        let force = (this.repelRadius - dist) / this.repelRadius;
+      if (!p.burst && dist < this.repelRadius && dist > 0) {
+        const force = (this.repelRadius - dist) / this.repelRadius;
         p.vx += (dx / dist) * force * 0.8;
         p.vy += (dy / dist) * force * 0.8;
       }
 
-      // Physics
+      // Apply physics
       p.x += p.vx;
       p.y += p.vy;
 
-      // Friction for bursts
       if (p.burst) {
         p.vx *= 0.95;
         p.vy *= 0.95;
         p.alpha -= 0.012;
       } else {
-        // Friction back to normal velocity for ambient
         p.vx *= 0.99;
         if (Math.abs(p.vx) > 0.4) p.vx *= 0.9;
         if (p.vy > -0.2) p.vy -= 0.01;
       }
 
-      // Draw
+      // Draw particle
       this.ctx.globalAlpha = Math.max(0, p.alpha);
       this.ctx.fillStyle = p.color;
       
@@ -105,10 +129,10 @@ export class ParticleSystem {
         this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         this.ctx.fill();
       } else {
-        this.ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+        this.ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
       }
 
-      // Recycle or Remove
+      // Recycle expired particles
       if (p.burst && p.alpha <= 0) {
         this.particles.splice(i, 1);
       } else if (!p.burst && p.y < -10) {

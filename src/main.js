@@ -1,23 +1,29 @@
 /**
  * @file main.js
- * @description Core client-side orchestrator for Pathwise AI. Handles form inputs, Gemini API execution, and results rendering.
+ * @description Core client-side orchestrator for Pathwise AI.
+ * Handles form inputs, Gemini API requests, results rendering, and session management.
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getCareerData } from "./careerData.js";
-import { initRadarChart, updateRadarChart } from "./radar.js";
+import { initRadarChart } from "./radar.js";
 import { saveSession, getSessions, clearHistory } from "./firebase.js";
+import { buildGeminiPrompt, sanitizeInput } from "./utils.js";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 /** 
- * Unique anonymous user ID bound to LocalStorage 
+ * Unique anonymous user ID bound to LocalStorage.
+ * Falls back to a static value in non-browser environments (e.g. test runners).
  * @type {string} 
  */
-let userId = localStorage.getItem('pw_user_id');
-if (!userId) {
-  userId = crypto.randomUUID();
-  localStorage.setItem('pw_user_id', userId);
+let userId = 'anonymous';
+if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+  userId = localStorage.getItem('pw_user_id') || '';
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem('pw_user_id', userId);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -151,9 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * Core orchestrator: Executes AI call, handles UI logic and delegates rendering.
      */
     const runGeneration = async () => {
-      state.role = roleInput?.value.trim() || '';
-      state.dream = dreamInput?.value.trim() || '';
-      state.skills = skillsInput?.value.trim() || '';
+      // Sanitize all inputs before processing to prevent XSS injection
+      state.role = sanitizeInput(roleInput?.value || '');
+      state.dream = sanitizeInput(dreamInput?.value || '');
+      state.skills = sanitizeInput(skillsInput?.value || '');
       
       if (!state.role || !state.dream) {
         if(errorMsg) errorMsg.textContent = 'Please enter your current role and dream career to continue.';
@@ -194,12 +201,18 @@ document.addEventListener('DOMContentLoaded', () => {
             await new Promise(r => setTimeout(r, 1500)); 
         } else {
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
             const prompt = buildGeminiPrompt(state.role, state.dream, state.skills, state.time);
             
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
-            resultData = JSON.parse(text.replace(/```json|```/g, '').trim());
+            try {
+              const result = await model.generateContent(prompt);
+              const text = result.response.text();
+              resultData = JSON.parse(text.replace(/```json|```/g, '').trim());
+            } catch (apiErr) {
+              console.warn('Gemini API failed, using offline fallback.', apiErr);
+              resultData = getCareerData(state.role, state.dream, state.skills, state.time);
+              if (errorMsg) errorMsg.textContent = 'Using offline data (API unavailable).';
+            }
         }
 
         if (resultData) {
