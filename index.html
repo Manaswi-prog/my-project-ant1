@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Pathwise AI: Your deep tech career intelligence assistant powered by Google Gemini." />
     <title>Pathwise AI — Career Intelligence Assistant</title>
     <!-- Preconnect for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,15 +16,15 @@
     <a href="#main-content" class="skip-link">Skip to main content</a>
     
     <!-- Session Sidebar UI -->
-    <aside id="session-sidebar" class="sidebar">
+    <aside id="session-sidebar" class="sidebar" aria-label="Session Memory Sidebar">
       <div class="sidebar-header">
         <h3>Memory <span class="badge">Beta</span></h3>
-        <button id="close-sidebar" class="ix sidebar-close-btn">✕</button>
+        <button id="close-sidebar" class="ix sidebar-close-btn" aria-label="Close Sidebar">✕</button>
       </div>
-      <div id="session-list" class="session-list"></div>
-      <button id="clear-history" class="ix danger-text">Clear History</button>
+      <div id="session-list" class="session-list" aria-live="polite"></div>
+      <button id="clear-history" class="ix danger-text" aria-label="Clear History">Clear History</button>
     </aside>
-    <button id="open-sidebar" class="ix sidebar-toggle">☰ History</button>
+    <button id="open-sidebar" class="ix sidebar-toggle" aria-label="Open Sidebar">☰ History</button>
     
     <!-- Custom Cursor -->
     <div id="cursor-dot"></div>
@@ -36,10 +37,10 @@
       <div class="nav-content">
         <div class="logo">Pathwise AI</div>
         <div class="nav-links">
-          <a href="#hero" class="ix">Home</a>
-          <a href="#features" class="ix">Features</a>
+          <a href="#hero" class="ix" aria-label="Home page">Home</a>
+          <a href="#features" class="ix" aria-label="Features section">Features</a>
         </div>
-        <a href="#form-section" class="cta-pill ix">Start Path</a>
+        <a href="#form-section" class="cta-pill ix" aria-label="Start Path">Start Path</a>
       </div>
     </nav>
 
@@ -114,8 +115,8 @@
         <div class="form-actions">
           <div id="error-message" class="error-msg"></div>
           <div class="action-buttons-wrap">
-            <button id="generate-btn" class="ix cta-button">✦ Generate Path</button>
-            <button id="demo-btn" class="ix cta-button demo-action">▶ Try Demo</button>
+            <button id="generate-btn" class="ix cta-button" aria-label="Generate Career Path">✦ Generate Path</button>
+            <button id="demo-btn" class="ix cta-button demo-action" aria-label="Try Demo Flow">▶ Try Demo</button>
           </div>
         </div>
       </section>
@@ -147,8 +148,8 @@
           </div>
           
           <div class="export-actions" data-html2canvas-ignore="true">
-            <button id="download-pdf" class="ix cta-button secondary">Download PDF</button>
-            <button id="share-card" class="ix cta-button secondary">Share Card</button>
+            <button id="download-pdf" class="ix cta-button secondary" aria-label="Download roadmap as PDF">Download PDF</button>
+            <button id="share-card" class="ix cta-button secondary" aria-label="Share snapshot of roadmap">Share Card</button>
           </div>
         </div>
       </section>
