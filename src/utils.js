@@ -12,7 +12,7 @@
  * @returns {string} Sanitized, HTML-safe string.
  */
 export function sanitizeInput(input) {
-  if (typeof input !== 'string') return '';
+  if (typeof input !== 'string') {return '';}
   return input.replace(/<[^>]*>/g, '').replace(/[<>]/g, '').trim();
 }
 

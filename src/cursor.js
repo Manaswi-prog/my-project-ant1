@@ -2,7 +2,7 @@ export function initCursor() {
   const dot = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
   
-  if (!dot || !ring) return;
+  if (!dot || !ring) {return;}
 
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;

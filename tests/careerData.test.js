@@ -15,7 +15,7 @@ describe('careerDB Structure', () => {
       skillLevels.forEach(level => {
         const path = careerDB[interest]?.[level];
         expect(path, `Missing path for ${interest}/${level}`).toBeDefined();
-        if (path) count++;
+        if (path) {count++;}
       });
     });
     expect(count).toBe(18);
@@ -25,7 +25,7 @@ describe('careerDB Structure', () => {
     interests.forEach(interest => {
       skillLevels.forEach(level => {
         const path = careerDB[interest]?.[level];
-        if (path) expect(path.skills).toHaveLength(7);
+        if (path) {expect(path.skills).toHaveLength(7);}
       });
     });
   });
@@ -34,7 +34,7 @@ describe('careerDB Structure', () => {
     interests.forEach(interest => {
       skillLevels.forEach(level => {
         const path = careerDB[interest]?.[level];
-        if (path) expect(path.gaps).toHaveLength(3);
+        if (path) {expect(path.gaps).toHaveLength(3);}
       });
     });
   });
@@ -43,7 +43,7 @@ describe('careerDB Structure', () => {
     interests.forEach(interest => {
       skillLevels.forEach(level => {
         const path = careerDB[interest]?.[level];
-        if (path) expect(path.roadmap).toHaveLength(5);
+        if (path) {expect(path.roadmap).toHaveLength(5);}
       });
     });
   });

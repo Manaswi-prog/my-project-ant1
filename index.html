@@ -93,17 +93,26 @@
         <div class="form-grid">
           <div class="form-card text-input-card">
             <label for="current-role">Current Role</label>
-            <input type="text" id="current-role" class="ix main-input" placeholder="e.g. Junior Designer" />
+            <div class="input-with-mic">
+              <input type="text" id="current-role" class="ix main-input" placeholder="e.g. Junior Designer" required aria-required="true" />
+              <button class="mic-btn ix" data-target="current-role" aria-label="Use microphone" type="button">🎙️</button>
+            </div>
           </div>
           
           <div class="form-card text-input-card">
             <label for="dream-career">Dream Career</label>
-            <input type="text" id="dream-career" class="ix main-input" placeholder="e.g. Design Director" />
+            <div class="input-with-mic">
+              <input type="text" id="dream-career" class="ix main-input" placeholder="e.g. Design Director" required aria-required="true" />
+              <button class="mic-btn ix" data-target="dream-career" aria-label="Use microphone" type="button">🎙️</button>
+            </div>
           </div>
 
           <div class="form-card text-input-card">
             <label for="current-skills">Current Skills (comma separated)</label>
-            <textarea id="current-skills" class="ix main-input" placeholder="e.g. Figma, HTML, CSS" rows="2"></textarea>
+            <div class="input-with-mic">
+              <textarea id="current-skills" class="ix main-input" placeholder="e.g. Figma, HTML, CSS" rows="2"></textarea>
+              <button class="mic-btn ix" data-target="current-skills" aria-label="Use microphone" type="button">🎙️</button>
+            </div>
           </div>
 
           <div class="form-card">
@@ -113,7 +122,7 @@
         </div>
         
         <div class="form-actions">
-          <div id="error-message" class="error-msg"></div>
+          <div id="error-message" class="error-msg" role="alert" aria-live="assertive"></div>
           <div class="action-buttons-wrap">
             <button id="generate-btn" class="ix cta-button" aria-label="Generate Career Path">✦ Generate Path</button>
             <button id="demo-btn" class="ix cta-button demo-action" aria-label="Try Demo Flow">▶ Try Demo</button>

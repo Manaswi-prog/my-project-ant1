@@ -9,7 +9,7 @@ export class ParticleSystem {
    */
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
+    if (!this.canvas) {return;}
     this.ctx = this.canvas.getContext('2d');
     this.particles = [];
     this.colors = ['#00f5ff','#8b5cf6','#f472b6','#a78bfa','#34d399','#fbbf24','#60a5fa'];
@@ -88,7 +88,7 @@ export class ParticleSystem {
    */
   animate() {
     // Efficiency: Skip frame if tab is not visible
-    if (!this.running) return;
+    if (!this.running) {return;}
 
     this.ctx.clearRect(0, 0, this.width, this.height);
 
@@ -116,8 +116,8 @@ export class ParticleSystem {
         p.alpha -= 0.012;
       } else {
         p.vx *= 0.99;
-        if (Math.abs(p.vx) > 0.4) p.vx *= 0.9;
-        if (p.vy > -0.2) p.vy -= 0.01;
+        if (Math.abs(p.vx) > 0.4) {p.vx *= 0.9;}
+        if (p.vy > -0.2) {p.vy -= 0.01;}
       }
 
       // Draw particle

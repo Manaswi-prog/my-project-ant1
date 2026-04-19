@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, deleteDoc, doc } from "firebase/firestore";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { getAnalytics, logEvent } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -21,11 +21,11 @@ try {
     analytics = getAnalytics(app);
   }
 } catch (e) {
-  console.warn("Firebase initialization skipped or failed:", e);
+  console.warn('Firebase initialization skipped or failed:', e);
 }
 
 export async function getSessions(userId) {
-  if (!db) return [];
+  if (!db) {return [];}
   try {
     const q = query(
       collection(db, 'sessions'), 
@@ -35,32 +35,32 @@ export async function getSessions(userId) {
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (err) {
-    console.warn("Firebase getSessions failed:", err);
+    console.warn('Firebase getSessions failed:', err);
     return [];
   }
 }
 
 export async function saveSession(sessionData) {
   try {
-    if (!db) return;
+    if (!db) {return;}
     await addDoc(collection(db, 'sessions'), {
       ...sessionData,
       timestamp: serverTimestamp(),
       sessionId: crypto.randomUUID()
     });
   } catch (err) {
-    console.warn("Firebase saveSession failed silently:", err);
+    console.warn('Firebase saveSession failed silently:', err);
   }
 }
 
 export async function clearHistory(userId) {
-  if (!db) return;
+  if (!db) {return;}
   try {
     const sessions = await getSessions(userId);
     const deletePromises = sessions.map(s => deleteDoc(doc(db, 'sessions', s.id)));
     await Promise.all(deletePromises);
   } catch (err) {
-    console.warn("Firebase clearHistory failed:", err);
+    console.warn('Firebase clearHistory failed:', err);
   }
 }
 
@@ -70,6 +70,6 @@ export function trackEvent(eventName, params) {
       logEvent(analytics, eventName, params);
     }
   } catch (err) {
-    console.warn("Firebase trackEvent failed silently:", err);
+    console.warn('Firebase trackEvent failed silently:', err);
   }
 }

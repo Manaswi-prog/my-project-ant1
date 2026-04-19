@@ -14,10 +14,10 @@
  */
 export function initRadarChart(data) {
   const canvas = document.getElementById('radar-chart');
-  if (!canvas) return;
+  if (!canvas) {return;}
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) {return;}
 
   // High-DPI / Retina display support
   const dpr = window.devicePixelRatio || 1;
@@ -70,8 +70,8 @@ export function initRadarChart(data) {
       for (let i = 0; i < sides; i++) {
         const x = centerX + r * Math.cos(i * angleStep - Math.PI / 2);
         const y = centerY + r * Math.sin(i * angleStep - Math.PI / 2);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        if (i === 0) {ctx.moveTo(x, y);}
+        else {ctx.lineTo(x, y);}
       }
       ctx.closePath();
       ctx.stroke();
@@ -138,8 +138,8 @@ export function initRadarChart(data) {
       const pr = (val / 100) * r;
       const x = cx + pr * Math.cos(i * step - Math.PI / 2);
       const y = cy + pr * Math.sin(i * step - Math.PI / 2);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+      if (i === 0) {ctx.moveTo(x, y);}
+      else {ctx.lineTo(x, y);}
     });
     ctx.closePath();
     ctx.fillStyle = fillColor;
@@ -154,9 +154,9 @@ export function initRadarChart(data) {
    */
   function animate() {
     animProgress += 0.02;
-    if (animProgress > 1) animProgress = 1;
+    if (animProgress > 1) {animProgress = 1;}
     drawRadar(animProgress);
-    if (animProgress < 1) requestAnimationFrame(animate);
+    if (animProgress < 1) {requestAnimationFrame(animate);}
   }
 
   animate();

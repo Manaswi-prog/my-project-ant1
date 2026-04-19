@@ -11,12 +11,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Separate Firebase into its own chunk (loads lazily)
+          // Firebase in its own chunk — loads in parallel but not blocking
           'vendor-firebase': ['firebase/app', 'firebase/firestore', 'firebase/analytics'],
-          // Separate AI SDK
+          // AI SDK in its own chunk
           'vendor-ai': ['@google/generative-ai'],
-          // Separate PDF/canvas export libs (rarely needed at startup)
-          'vendor-export': ['jspdf', 'html2canvas'],
+          // NOTE: jspdf and html2canvas are excluded — they are dynamically imported
+          // on-demand inside click handlers, so Rollup will auto-split them as async chunks
         }
       }
     },

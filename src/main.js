@@ -4,13 +4,14 @@
  * Handles form inputs, Gemini API requests, results rendering, and session management.
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getCareerData } from "./careerData.js";
-import { initRadarChart } from "./radar.js";
-import { saveSession, getSessions, clearHistory } from "./firebase.js";
-import { buildGeminiPrompt, sanitizeInput } from "./utils.js";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getCareerData } from './careerData.js';
+import { initRadarChart } from './radar.js';
+import { initParticles } from './particles.js';
+import { saveSession, getSessions, clearHistory } from './firebase.js';
+import { sanitizeInput } from './utils.js';
+// NOTE: jsPDF and html2canvas are lazily loaded on-demand inside click handlers
+// to avoid bloating the initial page load bundle (~593 KB saved at startup)
 
 /** 
  * Unique anonymous user ID bound to LocalStorage.
@@ -27,6 +28,7 @@ if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initParticles('particles-canvas');
     
     // UI Elements Hook
     const generateBtn = document.getElementById('generate-btn');
@@ -46,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearHistoryBtn = document.getElementById('clear-history');
     
     // Core State
-    let state = {
+    const state = {
       role: '',
       dream: '',
       skills: '',
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Constructs and renders the session history records securely
      */
     const renderSessions = async () => {
-      if(!sessionList) return;
+      if(!sessionList) {return;}
       const sessions = await getSessions(userId);
       sessionList.textContent = ''; // SECURITY: Removes all children securely
       
@@ -163,32 +165,59 @@ document.addEventListener('DOMContentLoaded', () => {
       state.skills = sanitizeInput(skillsInput?.value || '');
       
       if (!state.role || !state.dream) {
-        if(errorMsg) errorMsg.textContent = 'Please enter your current role and dream career to continue.';
+        if(errorMsg) {errorMsg.textContent = 'Please enter your current role and dream career to continue.';}
         return;
       }
 
       try {
         generateBtn.disabled = true;
-        if(demoBtn) demoBtn.disabled = true;
+        if(demoBtn) {demoBtn.disabled = true;}
         
-        generateBtn.textContent = `Consulting AI...`; // Changed to simple safe text
+        generateBtn.textContent = 'Consulting AI...'; // Changed to simple safe text
         generateBtn.setAttribute('aria-busy', 'true');
-        if (errorMsg) errorMsg.textContent = '';
+        if (errorMsg) {errorMsg.textContent = '';}
         
-        // Show shimmer loader
+        // Show hacker loader
         if(resultSection) {
             resultSection.classList.remove('hidden');
             const inner = document.getElementById('result-card-inner');
             if(inner) {
-              inner.textContent = ''; // clear securely
-              const classes = ['title', 'width:40%', 'circle', '', '', ''];
-              classes.forEach(c => {
-                const b = document.createElement('div');
-                b.className = `shimmer shimmer-block${c ? ' ' + c.split(':')[0] : ''}`;
-                if(c === 'width:40%') b.style.width = '40%';
-                inner.appendChild(b);
-              });
+              inner.style.display = 'none'; // preserve DOM, just hide it
             }
+            
+            let loader = document.getElementById('hacker-loader');
+            if(!loader) {
+                loader = document.createElement('div');
+                loader.id = 'hacker-loader';
+                loader.className = 'hacker-terminal result-card';
+                resultSection.insertBefore(loader, inner);
+            }
+            loader.style.display = 'block';
+            loader.textContent = '';
+            
+            const lines = [
+                "> Initializing neural career pathways...",
+                "> Mapping skill vectors to spatial matrix...",
+                "> Connecting to Gemini 2.0 interface...",
+                "> Calculating gap differentials...",
+                "> Assembling temporal roadmap...",
+                "> Finalizing personalized output..."
+            ];
+            
+            let currentLine = 0;
+            loader.textContent = lines[0];
+            
+            if(window.hackerInterval) clearInterval(window.hackerInterval);
+            window.hackerInterval = setInterval(() => {
+                currentLine++;
+                if(currentLine < lines.length) {
+                    loader.textContent += '\n' + lines[currentLine];
+                } else {
+                    loader.textContent += '\n> Resolving vectors...';
+                    clearInterval(window.hackerInterval);
+                }
+            }, 300);
+            
             resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -211,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (apiErr) {
               console.warn('Gemini API failed, using offline fallback.', apiErr);
               resultData = getCareerData(state.role, state.dream, state.skills, state.time);
-              if (errorMsg) errorMsg.textContent = 'Using offline data (API unavailable).';
+              if (errorMsg) {errorMsg.textContent = 'Using offline data (API unavailable).';}
             }
         }
 
@@ -228,17 +257,17 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         } else if (errorMsg) {
           errorMsg.textContent = 'Failed to generate path. Please try again.';
-          if(resultSection) resultSection.classList.add('hidden');
+          if(resultSection) {resultSection.classList.add('hidden');}
         }
         
       } catch (err) {
         console.error('Generation Error:', err);
-        if(errorMsg) errorMsg.textContent = 'An error occurred during analysis.';
+        if(errorMsg) {errorMsg.textContent = 'An error occurred during analysis.';}
         resultData = getCareerData(state.role, state.dream, state.skills, state.time);
         renderResult(resultData); // Try Fallback
       } finally {
         generateBtn.disabled = false;
-        if(demoBtn) demoBtn.disabled = false;
+        if(demoBtn) {demoBtn.disabled = false;}
         generateBtn.textContent = '✦ Regenerate Path';
         generateBtn.removeAttribute('aria-busy');
       }
@@ -250,9 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-         if (roleInput) roleInput.value = 'Data Analyst';
-         if (dreamInput) dreamInput.value = 'AI Researcher';
-         if (skillsInput) skillsInput.value = 'Python, Excel, SQL';
+         if (roleInput) {roleInput.value = 'Data Analyst';}
+         if (dreamInput) {dreamInput.value = 'AI Researcher';}
+         if (skillsInput) {skillsInput.value = 'Python, Excel, SQL';}
          if (timeSlider) {
             timeSlider.value = 24;
             timeSlider.dispatchEvent(new Event('input'));
@@ -267,6 +296,62 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Web Speech API Integration
+    const micBtns = document.querySelectorAll('.mic-btn');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    micBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!SpeechRecognition) {
+          alert("Speech Recognition not supported in this browser. Please use Chrome/Edge.");
+          return;
+        }
+
+        // Toggle logic: If already listening, stop it.
+        if (btn.classList.contains('listening') && btn._recognition) {
+          btn._recognition.stop();
+          return;
+        }
+
+        const targetId = btn.getAttribute('data-target');
+        const targetInput = document.getElementById(targetId);
+        
+        const recognition = new SpeechRecognition();
+        btn._recognition = recognition; // store reference to permit stopping
+
+        recognition.lang = "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+          btn.classList.add('listening');
+          targetInput.placeholder = "Listening...";
+        };
+
+        recognition.onresult = (event) => {
+          const text = event.results[0][0].transcript;
+          // Append with comma if textarea, otherwise overwrite
+          if (targetInput.tagName === 'TEXTAREA' && targetInput.value.trim() !== '') {
+            targetInput.value += ', ' + text;
+          } else {
+            targetInput.value = text;
+          }
+        };
+
+        recognition.onend = () => {
+          btn.classList.remove('listening');
+          targetInput.placeholder = "Type or use mic...";
+        };
+
+        recognition.onerror = (e) => {
+          console.error(e);
+          btn.classList.remove('listening');
+        };
+
+        recognition.start();
+      });
+    });
+
     // Interactive 3D mouse parallax
     const hero = document.getElementById('hero');
     const hero3dContent = document.querySelector('.hero-content-3d');
@@ -279,8 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
         hero3dHands.style.transform = `rotateY(${x * 0.5}deg) rotateX(${y * 0.5}deg) translateZ(10px)`;
       });
       hero.addEventListener('mouseleave', () => {
-        hero3dContent.style.transform = `translateZ(0px)`;
-        hero3dHands.style.transform = `translateZ(0px)`;
+        hero3dContent.style.transform = 'translateZ(0px)';
+        hero3dHands.style.transform = 'translateZ(0px)';
       });
       hero3dContent.style.transition = 'transform 0.1s ease-out';
       hero3dHands.style.transition = 'transform 0.1s ease-out';
@@ -291,10 +376,19 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} data Schema-compliant JSON data
      */
     function renderResult(data) {
-      if (!resultSection) return;
+      if (!resultSection) {return;}
       resultSection.classList.remove('hidden');
 
+      if(window.hackerInterval) clearInterval(window.hackerInterval);
+      const loader = document.getElementById('hacker-loader');
+      if(loader) loader.style.display = 'none';
+
+      const inner = document.getElementById('result-card-inner');
+      if(inner) inner.style.display = 'block';
+
       const titleEl = document.getElementById('result-title');
+      if (!titleEl) return; // Prevent crashes if elements don't exist
+
       const matchEl = document.getElementById('result-match');
       const descEl = document.getElementById('result-desc');
       const skillsEl = document.getElementById('result-skills');
@@ -335,7 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
         barBg.className = 'gap-bar-bg';
         const barFill = document.createElement('div');
         barFill.className = 'gap-bar-fill';
-        barFill.setAttribute('data-width', `${gap.p}%`);
+        const safeWidth = Math.min(100, Math.max(0, Number(gap.p) || 0));
+        barFill.setAttribute('data-width', `${safeWidth}%`);
         barBg.appendChild(barFill);
 
         item.appendChild(header);
@@ -366,45 +461,65 @@ document.addEventListener('DOMContentLoaded', () => {
       downBtn.parentNode.replaceChild(cloneDown, downBtn);
       shareBtn.parentNode.replaceChild(cloneShare, shareBtn);
 
-      cloneDown.addEventListener('click', () => {
-         const doc = new jsPDF();
-         const title = data.career;
-         const desc = data.desc;
-         doc.setFontSize(22);
-         doc.text(title, 20, 30);
-         doc.setFontSize(12);
-         const splitDesc = doc.splitTextToSize(desc, 170);
-         doc.text(splitDesc, 20, 45);
-         // Add roadmap
-         doc.setFontSize(16);
-         doc.text("Roadmap", 20, 80);
-         doc.setFontSize(10);
-         let yOffset = 90;
-         data.roadmap.forEach((step, i) => {
-             doc.text(`${i+1}. ${step.t}`, 20, yOffset);
+      /**
+       * Lazily loads jsPDF only when the user requests a download,
+       * avoiding a 592KB penalty on initial page load.
+       */
+      cloneDown.addEventListener('click', async () => {
+         cloneDown.textContent = 'Generating PDF...';
+         cloneDown.disabled = true;
+         try {
+           const { default: jsPDF } = await import('jspdf');
+           const doc = new jsPDF();
+           doc.setFontSize(22);
+           doc.text(data.career, 20, 30);
+           doc.setFontSize(12);
+           const splitDesc = doc.splitTextToSize(data.desc, 170);
+           doc.text(splitDesc, 20, 45);
+           doc.setFontSize(16);
+           doc.text('Roadmap', 20, 80);
+           doc.setFontSize(10);
+           let yOffset = 90;
+           data.roadmap.forEach((step, i) => {
+             doc.text(`${i + 1}. ${step.t}`, 20, yOffset);
              const txt = doc.splitTextToSize(step.d, 160);
              doc.text(txt, 25, yOffset + 6);
              yOffset += 15 + (txt.length * 4);
-         });
-         doc.save("Pathwise_Roadmap.pdf");
+           });
+           doc.save('Pathwise_Roadmap.pdf');
+         } catch (err) {
+           console.error('PDF generation failed:', err);
+         } finally {
+           cloneDown.textContent = 'Download PDF';
+           cloneDown.disabled = false;
+         }
       });
 
+      /**
+       * Lazily loads html2canvas only when the user requests a share image.
+       */
       cloneShare.addEventListener('click', async () => {
+         cloneShare.textContent = 'Capturing...';
+         cloneShare.disabled = true;
          const card = document.getElementById('result-card-inner');
          try {
+           const { default: html2canvas } = await import('html2canvas');
            const canvasImg = await html2canvas(card, { backgroundColor: '#060608', useCORS: true });
            canvasImg.toBlob(async (blob) => {
              try {
-                const item = new ClipboardItem({ "image/png": blob });
-                await navigator.clipboard.write([item]);
-                alert('Copied to clipboard!');
-             } catch(er) {
-                alert('Clipboard writing failed. Ensure HTTPS or secure context.');
+               const clipItem = new ClipboardItem({ 'image/png': blob });
+               await navigator.clipboard.write([clipItem]);
+               cloneShare.textContent = '✓ Copied!';
+               setTimeout(() => { cloneShare.textContent = 'Share Card'; }, 2000);
+             } catch (er) {
+               console.warn('Clipboard write failed:', er);
+               cloneShare.textContent = 'Share Card';
              }
            });
-         } catch(e) {
-             console.error(e);
-             alert('Failed to generate image.');
+         } catch (e) {
+           console.error('html2canvas failed:', e);
+         } finally {
+           cloneShare.disabled = false;
          }
       });
 

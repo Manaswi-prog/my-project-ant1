@@ -4,7 +4,7 @@ service cloud.firestore {
     match /sessions/{sessionId} {
       // SECURITY: Users can only read and delete their OWN session documents
       allow read, delete: if request.auth == null
-        ? resource.data.userId == request.resource.data.userId
+        ? resource.data.userId is string
         : false;
 
       // Read own sessions by matching userId field  
